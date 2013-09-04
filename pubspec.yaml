@@ -1,0 +1,6 @@
+name: minesweeper
+description: A sample web application
+dependencies:
+  browser: any
+  shuffle: any
+  unittest: any

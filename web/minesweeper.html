@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="minesweeper.css">
+  </head>
+  <body>
+    <h1>Minesweeper</h1>
+    
+    <p>Minesweeper</p>
+    
+    <div id="minesweeper">
+      <div> Time:  <strong id='time'>0</strong></div>
+      <img src='images/happy.jpg' alt='sun' id='sun'/>
+      <div id='mines'></div>
+      
+      <div id='board'></div>
+      <select name="sizes" id='list'>
+      </select>
+    </div>
+
+    <script type="application/dart" src="minesweeper.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>

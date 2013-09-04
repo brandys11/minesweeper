@@ -1,0 +1,79 @@
+
+body {
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.2em;
+  margin: 15px;
+}
+
+h1, p {
+  text-align:center;
+  color: #333;
+}
+
+#minesweeper {
+  width: 100%;
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  text-align:center;
+}
+
+#board {
+  height:450px;
+  width:450px;
+  background-color:#ddd;
+  margin:20px auto;
+  background-image:url('images/background.png');
+  background-size:contain;
+}
+
+#list {
+  background-color:#ddd;
+  padding:10px;
+  position:absolute;
+  left:50px;
+  top:50px;
+  font-size:25px;
+}
+
+#sun {
+  width:50px;
+  border: 1px solid black;  
+  padding:5px; 
+}
+
+
+.cell {
+  position:absolute;
+  height:20px;
+  width:20px;
+  background-color:#aaa;
+  border:1px dotted gray;
+  box-shadow:0px 0px 5px 0px #eee inset;
+  opacity:0.95;  
+}
+.flag {
+  background-image:url('images/flag.jpg');
+  background-size:contain;
+  opacity:0.7;
+}
+
+.number {
+  background-color:rgba(200,200,200,0.4);
+  font-weight:bold;
+  font-size:15px;
+  opacity:0.8;
+}
+
+.blank {
+  background-color:#ddd;
+  opacity:0.2;
+}
+.bomb {
+  background-image:url('images/bomb.jpg');
+  background-size:contain;
+}
+
