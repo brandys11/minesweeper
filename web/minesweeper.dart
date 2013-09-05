@@ -13,7 +13,7 @@ void main() {
   SelectElement list = query('#list');
   list.onChange.listen((e){
     game.size = int.parse(list.value);
-    game.mines = (game.size*game.size)~/10;
+    game.mines = (game.size*game.size)~/7;
   });
   list.children.addAll(
       new List.generate(5, 
@@ -34,7 +34,9 @@ class Game {
   int mines = 2;
   int minesLeft;
   int toTurnLeft;
-  bool lost=false;
+  
+  bool finished=false;
+  bool started;
   
   Timer timer;
   
@@ -47,12 +49,13 @@ class Game {
   }
   
   init(){
+    stopGame();
     container.children.clear();
         
-    lost=false;
+    finished=false;
+    started=false;
     
     toTurnLeft = size*size-mines;
-    stopTimer();
     query('#time').text = 0.toString();
     query('#mines').text = mines.toString();
         
@@ -64,45 +67,64 @@ class Game {
         return new Cell(container,i,j);
       }, growable: false);
     }, growable: false);
-    
-    List<bool> bombs = new List.filled(size*size,false);
-    for(int i=0;i<mines;i++)bombs[i]=true;
-    bombs = shuffle(bombs);
-    
+  }
+  
+  /**
+   * Put bombs on the board except the neigboaring cells
+   */
+  putBombs(int x,int y){
+    var list = new List<Cell>();
     for(int i=0;i<size*size;i++){
-      if(bombs[i]){
-        board[i~/size][i%size].bomb();
-        for(int j=-1;j<2;j++)
-          for(int k=-1;k<2;k++)
-            try { board[i~/size+j][i%size+k].bombsAround++; }
-            catch(e){;}
-      }
+      if(! ((i ~/ size - x ).abs() < 2 && (i % size - y).abs() < 2))
+        list.add(board[i~/size][i%size]);
+    }
+    list = shuffle(list);
+    for(int i =0;i<mines;i++){
+      list[i].bomb();
+      for(int j=-1;j<2;j++)
+        for(int k=-1;k<2;k++)
+          try { board[list[i].x+j][list[i].y+k].bombsAround++; }
+          catch(e){;}
     }
   }
-  startTimer(){
-    if(timer==null)
+  startGame(int x,int y){
+    if(!started){
+      started = true;
+      putBombs(x,y);
+      
       timer = new Timer.periodic(new Duration(seconds:1), (t) {
         query('#time').text = (int.parse(query('#time').text)+1).toString();
       });
+    }
   }
-  stopTimer(){
+  stopGame(){
     if(timer!=null){
       timer.cancel();
       timer=null;
     }
+    if(timerSun!=null)
+      timerSun.cancel();
+    
+    finished = true;
+    if(board!=null)
+      for(List list in board)
+        for(Cell cell in list){
+          cell.unHide();
+      }
   }
   
   lose(){
-    game.lost = true;
-    timerSun.cancel();
+    if(finished)return;
+    stopGame();
+    
     query('#sun').attributes['src'] = 'images/sad.jpg';
     window.alert('Prehrali ste!!!');
   }
   
   win(){
-    if(lost)return;
-    timer.cancel();
-    timerSun.cancel();
+    if(finished)return;
+    stopGame();
+    
     query('#sun').attributes['src'] = 'images/win.png';
     window.alert('Vyhrali ste!!!');
   }
@@ -151,24 +173,27 @@ class Cell {
     container.append(div);
   }
   
+  unHide(){
+    if(type){
+      div.classes.add("bomb");
+      game.lose();
+    }
+    else {
+      if(bombsAround>0) 
+        div..text = bombsAround.toString()
+        ..classes.add('number');
+      else div.classes.add("blank");
+    }
+  }
   show(MouseEvent e){
     waitingSun(300);
-    game.startTimer();
+    game.startGame(x,y);
     
     if(( e.button==0 
         && !div.classes.contains("flag") )
-        || e.type=='Show'){ 
-      if(type){
-        div.classes.add("bomb");
-        game.lose();
-      }
-      else {
-        if(bombsAround>0) 
-          div..text = bombsAround.toString()
-             ..classes.add('number');
-        else div.classes.add("blank");
-        if(!_turned) game.toTurnLeft--;
-      }
+        || e.type=='Show' && !_turned){ 
+      unHide();
+      if(!_turned) game.toTurnLeft--;
       
       if(bombsAround==0) game.Turned(x, y);
       game.check();
@@ -181,7 +206,6 @@ class Cell {
       else {
         query('#mines').text = (int.parse(query('#mines').text)-1).toString();
       }
-        
       div.classes.toggle("flag");
     }
   }
